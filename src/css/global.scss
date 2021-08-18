@@ -1,0 +1,48 @@
+@import "typography";
+
+@import "index";
+
+body {
+  display: block !important;
+  background-color: #fefefe;
+}
+
+a:link,
+a:focus,
+a:active,
+a:visited {
+  color: #333;
+  text-decoration: none;
+}
+p {
+  margin-top: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+  line-height: 165%;
+  cursor: pointer;
+}
+
+.btn-green {
+  background-color: #1ed760;
+  color: #fff;
+}
+
+.btn-black {
+  background-color: #121212;
+  border: 1px solid #ccc;
+}
