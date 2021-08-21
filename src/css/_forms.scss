@@ -1,0 +1,18 @@
+.action-select {
+  height: 45px;
+  border: 1px solid #121212;
+  border-radius: 1px;
+}
+
+input {
+  border: none;
+  padding: 0.5rem 0.5rem;
+  box-shadow: 0 2px 5px rgba(#000, 0.05);
+  border: 2px solid #fafafa;
+  &:read-only {
+    color: #606060;
+  }
+  &::placeholder {
+    color: #aaa;
+  }
+}
