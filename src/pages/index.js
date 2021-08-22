@@ -19,10 +19,14 @@ const Home = ({ routes: initialRoutes = [] }) => {
 
   const onAddRedirect = async ({ from, to, statusCode, enforceHTTPS }, setError) => {
     if (!checkDuplicate(routes, { source: from })) {
-      return setError('from', {
-        type: "manual",
-        message: "Source already exists",
-      });
+      if (setError) {
+        return setError('from', {
+          type: "manual",
+          message: "Source already exists",
+        });
+      } else {
+        return;
+      }
     };
     try {
       const res = await axios.post(`/api/addRoute`, { from, to, statusCode, enforceHTTPS })
@@ -33,6 +37,7 @@ const Home = ({ routes: initialRoutes = [] }) => {
     catch (e) {
       const errors = e.response.data.errors
       console.log(e.response.data)
+      if (!setError) return;
       for (const errorKey in errors) {
         setError(errorKey, {
           type: "manual",
@@ -120,6 +125,9 @@ const Home = ({ routes: initialRoutes = [] }) => {
     catch (e) {
       const errors = e.response.data.errors
       console.log(e.response.data)
+      if (!setError) {
+        return;
+      }
       for (const errorKey in errors) {
         setError(errorKey, {
           type: "manual",
