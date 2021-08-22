@@ -2,6 +2,7 @@ version: '3.7'
 
 x-common-settings:
   &common-settings
+  CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-api}
   CERYX_DEBUG: ${CERYX_DEBUG:-true}
   CERYX_REDIS_HOST: ${CERYX_REDIS_HOST:-redis}
   CERYX_REDIS_PORT: ${CERYX_REDIS_PORT:-6379}
@@ -12,11 +13,19 @@ services:
   web:
     build: .
     environment:
+      <<: *common-settings
       NODE_ENV: development
     command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "api:5555"]
+      interval: 10s
+      timeout: 50s
+      retries: 5
+
     volumes:
       - .:/home/app/redirct
       - /home/app/redirct/node_modules
+      - .env:/home/app/redirct/src/.env
   ceryx:
     image: sourcelair/ceryx:latest
     ports:
@@ -42,7 +51,7 @@ services:
       - ceryx
     environment:
       <<: *common-settings
-      CERYX_API_HOST: ${CERYX_API_HOST:-0.0.0.0}
+      # CERYX_API_HOST: ${CERYX_API_HOST:-0.0.0.0}
       CERYX_API_HOSTNAME: ${CERYX_API_HOSTNAME:-localhost}
       CERYX_API_PORT: ${CERYX_API_PORT:-5555}
       
