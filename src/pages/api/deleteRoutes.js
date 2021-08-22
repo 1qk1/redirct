@@ -1,6 +1,7 @@
 import axios from "axios";
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0';
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === 'POST') {
     const { domains } = req.body
     const promises = domains.map(domain => {
@@ -16,3 +17,5 @@ export default async function handler(req, res) {
   }
   return null
 }
+
+export default withApiAuthRequired(handler);

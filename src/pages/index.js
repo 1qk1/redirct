@@ -17,8 +17,13 @@ const Home = ({ routes: initialRoutes = [] }) => {
   const [selectAllStatus, setselectAllStatus] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
-  const onAddRedirect = async ({ from, to, statusCode, enforceHTTPS }) => {
-    if (!checkDuplicate(routes, { source: from })) return;
+  const onAddRedirect = async ({ from, to, statusCode, enforceHTTPS }, setError) => {
+    if (!checkDuplicate(routes, { source: from })) {
+      return setError('from', {
+        type: "manual",
+        message: "Source already exists",
+      });
+    };
     try {
       const res = await axios.post(`/api/addRoute`, { from, to, statusCode, enforceHTTPS })
       const route = res.data;
@@ -26,7 +31,14 @@ const Home = ({ routes: initialRoutes = [] }) => {
       setRoutes([...routes, route]);
     }
     catch (e) {
-      console.log(e)
+      const errors = e.response.data.errors
+      console.log(e.response.data)
+      for (const errorKey in errors) {
+        setError(errorKey, {
+          type: "manual",
+          message: errors[errorKey],
+        });
+      }
     }
   }
   const getRoutes = async () => {
@@ -69,6 +81,7 @@ const Home = ({ routes: initialRoutes = [] }) => {
   }
   const editRouteModal = (index) => {
     const route = { ...routes[index] }
+    console.log(index, route)
     setEditModalData({
       from: route.source,
       to: route.target,
@@ -90,8 +103,7 @@ const Home = ({ routes: initialRoutes = [] }) => {
 
 
   }
-  const onEditRedirect = async ({ from, to, statusCode, enforceHTTPS }) => {
-    setShowEditRedirect(false)
+  const onEditRedirect = async ({ from, to, statusCode, enforceHTTPS }, setErrors) => {
     try {
       const res = await axios.put(`/api/editRoute`, { from, to, statusCode, enforceHTTPS })
       const editedRoute = res.data;
@@ -102,9 +114,18 @@ const Home = ({ routes: initialRoutes = [] }) => {
         return route
       })
       setRoutes(newRoutes);
+      setShowEditRedirect(false)
+      setEditModalData({})
     }
     catch (e) {
-      console.log(e)
+      const errors = e.response.data.errors
+      console.log(e.response.data)
+      for (const errorKey in errors) {
+        setError(errorKey, {
+          type: "manual",
+          message: errors[errorKey],
+        });
+      }
     }
   }
   const deleteSelectedRoutes = async () => {
@@ -192,7 +213,12 @@ const Home = ({ routes: initialRoutes = [] }) => {
                 return (
                   <tr className="route" key={`route-${i}`}>
                     <th className="checkbox-col"><input type="checkbox" checked={checkboxStatus[i]} onChange={(event) => changeCheckbox(i, event.target.checked)} /></th>
-                    <th><button className="btn-trans w-100" onClick={() => editRouteModal(i)}>{route.source}</button></th>
+                    <th><button className="btn-trans w-100" onClick={() => {
+                      setEditModalData(route)
+                      editRouteModal(i)
+
+                    }
+                    }>{route.source}</button></th>
                     <th>{route.target}</th>
                     <th>{route.statusCode}</th>
                     <th>{!route.settings.enforce_https || 'x'}</th>
@@ -204,28 +230,35 @@ const Home = ({ routes: initialRoutes = [] }) => {
         </form>
       </div>
       {/* edit redirect  */}
-      <EditRedirectModal
+      {showEditRedirect && <EditRedirectModal
         showAddRedirect={showEditRedirect}
-        setShowAddRedirect={setShowEditRedirect}
+        setShowAddRedirect={(arg) => {
+          setShowEditRedirect(arg)
+          setEditModalData({})
+        }}
         onSubmit={onEditRedirect}
         {...editModalData}
         buttonText="Update redirect"
-      />
+      />}
       {/* add redirect */}
-      <AddRedirectModal
+      {showAddRedirect && <AddRedirectModal
         showAddRedirect={showAddRedirect}
         setShowAddRedirect={setShowAddRedirect}
         onSubmit={onAddRedirect}
-      />
+      />}
     </Layout>
   )
 }
 
-export const getServerSideProps = async () => {
-  const response = await axios.get(`http://${process.env.CERYX_API_HOSTNAME}:5555/api/routes/`);
-  const routes = response.data.filter(route => route.settings.mode === 'redirect')
-  return {
-    props: { routes }
+export default Home
+
+
+export const getServerSideProps = withPageAuthRequired({
+  getServerSideProps: async (ctx) => {
+    const response = await axios.get(`http://${process.env.CERYX_API_HOSTNAME}:5555/api/routes/`);
+    const routes = response.data.filter(route => route.settings.mode === 'redirect')
+    return {
+      props: { routes }
+    }
   }
-}
-export default withPageAuthRequired(Home);
+})

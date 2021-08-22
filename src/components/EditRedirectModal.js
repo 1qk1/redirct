@@ -10,25 +10,25 @@ const AddRedirect = ({
   to = "",
   statusCode = "301",
   enforceHTTPS = true,
-  buttonText = "Add new redirect"
+  buttonText = "Update redirect"
 }) => {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
-
+  const { register, handleSubmit, watch, setError, formState: { errors } } = useForm();
   return (
     <Modal
       show={showAddRedirect}
       close={() => setShowAddRedirect(false)}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit((data) => onSubmit(data, setError))}>
         <div className="mb-3">
           <label className="d-block">From:</label>
           <input placeholder="example.com" className="w-100" type="text" name="from" value={from} readOnly {...register("from", { required: true })} />
-          {errors.from && <span>This field is required</span>}
+          {errors.from && <span className="text-danger">{errors.from.message}</span>}
+          <p><small>(Source is read-only)</small></p>
         </div>
         <div className="mb-3">
           <label className="d-block">To:</label>
           <input placeholder="https://google.com" className="w-100" type="text" name="to" defaultValue={to} {...register("to", { required: true })} />
-          {errors.to && <span>This field is required</span>}
+          {errors.to && <span className="text-danger">{errors.to.message}</span>}
         </div>
         <div className="mb-4">
           <label className="d-block" htmlFor="">Status Code</label>

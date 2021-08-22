@@ -1,17 +1,19 @@
 import axios from "axios";
 import splitURL from '../../utils/splitURL'
 
-export default async function handler(req, res) {
+import { withApiAuthRequired, getSession } from '@auth0/nextjs-auth0';
+
+async function handler(req, res) {
   if (req.method === 'POST') {
     const { from, to, enforceHTTPS = false } = req.body
     const splittedFrom = splitURL(from)
     if (!splittedFrom) {
-      return res.status(400).json({ error: "Bad source" })
+      return res.status(400).json({ errors: { from: "Bad source" } })
     }
     const splittedTo = splitURL(to)
 
     if (!splittedTo) {
-      return res.status(400).json({ error: "Bad target" })
+      return res.status(400).json({ errors: { to: "Bad target" } })
     }
     let protocolTo = "http://"
     if (enforceHTTPS || splittedTo.protocol) {
@@ -22,3 +24,6 @@ export default async function handler(req, res) {
   }
   return null
 }
+
+
+export default withApiAuthRequired(handler);
