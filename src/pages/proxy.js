@@ -182,7 +182,6 @@ const Proxy = ({ routes: initialRoutes = [] }) => {
         <meta property="og:title" content="Redirects made easy" key="title" />
       </Head>
       <div className="container">
-
         <form onSubmit={handleSubmit(onPerformAction)}>
           <div className="actions d-flex justify-content-between my-3">
             <div className="d-flex align-items-center">
@@ -206,6 +205,7 @@ const Proxy = ({ routes: initialRoutes = [] }) => {
               <input ref={uploadRef} className="d-none" type='file' id='file' onChange={onImportFileChange} />
             </div>
           </div>
+          <h1 className="h4">All Proxy Hosts</h1>
           <table className="routes">
             <thead>
               <tr>

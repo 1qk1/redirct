@@ -206,6 +206,7 @@ const Redirects = ({ routes: initialRoutes = [] }) => {
               <input ref={uploadRef} className="d-none" type='file' id='file' onChange={onImportFileChange} />
             </div>
           </div>
+          <h1 className="h4">All Redirect Hosts</h1>
           <table className="routes">
             <thead>
               <tr>
